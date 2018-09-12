@@ -96,3 +96,26 @@ def flat_data_calling():
     dt = data.iloc[1000*i:]
     del data
     flat_data(dt)
+
+
+def separate_features():
+    data = pd.read_csv('../features/data_features_clean_flat.csv', header=None).drop(0, axis=1)
+    print(data)
+    basic = data.iloc[:, 1:3]
+    data = data.drop(3, axis=1)
+    # n_grams = data.iloc[:, 1:525]
+    for i in range(4, 527):
+        data = data.drop(i, axis=1)
+    data = data.drop(1, axis=1)
+
+    embeddings = data
+    print('basic', basic)
+    # print('n_grams', n_grams)
+    print('embeddings', embeddings)
+    # n_grams.to_csv('../features/n_grams.csv')
+    embeddings.to_csv('../features/embeddings.csv')
+    with open("../features/basic.txt", "wb") as fp:  # Pickling
+        pickle.dump(basic, fp)
+
+
+separate_features()

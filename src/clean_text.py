@@ -36,12 +36,6 @@ def split(comment):
     # print(sentences)
 
 
-def stem(comment):
-    porter = PorterStemmer()
-    stemmed = [porter.stem(word) for word in comment]
-    return stemmed
-
-
 def clean_comments():
     comments = pd.read_csv('../data/4054689/attack_annotated_comments.tsv', delimiter='\t')
     comments = comments.drop(['year', 'sample', 'split'], axis=1)

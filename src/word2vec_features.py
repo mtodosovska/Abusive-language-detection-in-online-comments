@@ -40,7 +40,7 @@ def train_model(comments):
 
 def load_model():
     # model = Word2Vec.load("word2vec_model_second.txt")
-    model = Word2Vec.load('model.bin')
+    model = Word2Vec.load('../models/model.bin')
     return model
 
 
@@ -69,29 +69,29 @@ def get_vectors(comments, num_features):
     counter = 0
     data = pd.DataFrame()
 
-    for index, row in  comments.iterrows():
+    for index, row in comments.iterrows():
         if counter % 100 == 0:
             print("Review %d of %d" % (counter, comments.iloc[:, 0].shape[0]))
         counter += 1
         # feature_vector.append(comment.iloc[0])
 
-        vector = get_avg_vec(model, row.iloc[2], num_features)
-        print(vector)
+        vector = get_avg_vec(model, row.iloc[1], num_features)
 
-        # TODO - embeddings shouldn't be a list, each embedding should be a column of its own
-        row = row.append(pd.DataFrame(['m', vector]))
-        comment = pd.DataFrame(row)
-        comment = comment.transpose().drop(0, axis=1)
-        comment.columns = ['rev_id', 'label', 'words', 'embedding']
+        ls = np.zeros(len(vector) + 1)
+        ls[0] = row[0]
+        ls[1:] = vector
+        ft = pd.DataFrame(ls)
 
-        data = data.append(comment)
+        data = data.append(ft.transpose())
 
-    with open("data_features.txt", "wb") as fp:  # Pickling
-        pickle.dump(data, fp)
+    data.to_csv('../features/embeddings.csv')
+    # with open("../features/embe", "wb") as fp:  # Pickling
+    #     pickle.dump(data, fp)
+
 
 def get_data():
     # data = pd.read_csv('../data/data.csv', index_col=0, encoding='latin1')
-    with open("../data/data.txt", "rb") as fp:  # Unpickling
+    with open("../features/basic_comments.txt", "rb") as fp:  # Unpickling
         data = pickle.load(fp)
     return data
 
@@ -99,4 +99,13 @@ def get_data():
 num_features = 100
 data = get_data()
 # train_model(data.iloc[:, 2])
-get_vectors(data, num_features)
+get_vectors(data.iloc[:, 0:2], num_features)
+#
+# data = get_data()
+# embeddings = pd.read_csv('../features/embeddings.csv')
+# data = data.merge(embeddings, how='left', left_on='rev_id', right_on='0')
+# # print(data.iloc[0])
+# embeddings = data.iloc[:, 12:]
+# print(embeddings)
+# embeddings.to_csv('../features/embeddings.csv', index=False)
+#

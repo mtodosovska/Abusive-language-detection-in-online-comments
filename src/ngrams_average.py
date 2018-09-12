@@ -14,15 +14,50 @@ def get_sentences():
     return sentences
 
 
-# TODO - rerun with (2, 2) ngrams, maybe try with word2vec as well, this does not give bigrams
 def get_n_grams(n):
-    sentences = get_sentences().iloc[:, 0].tolist()
-    tfidf = TfidfVectorizer(min_df=0.01, max_df=0.7, ngram_range=(1, n))
-    features = tfidf.fit_transform(sentences)
+
+    with open("../features/basic_comments.txt", "rb") as fp:  # Unpickling
+        basic = pickle.load(fp)
+
+    # print(basic)
+
+    # sentences = []
+    # i = 0
+    # for comment in basic['words']:
+    #     print('Sentences:', i)
+    #     i += 1
+    #     sentences.append(" ".join(str(x) for x in comment))
+    #
+    # sentences = pd.DataFrame(sentences)
+    # sentences.to_csv('../data/sentences_clean.csv')
+    sentences = pd.read_csv('../data/sentences_clean.csv', encoding='latin1').drop('Unnamed: 0', axis=1)
+    # sentences = basic['words']
+    # print(sentences)
+
+
+
+    tfidf = TfidfVectorizer(min_df=0.001, max_df=0.7, ngram_range=(2, n))
+    features = tfidf.fit_transform(sentences.iloc[:, 0])
     ngrams = pd.DataFrame(features.todense(), columns=tfidf.get_feature_names())
-    ngrams.to_csv('../features/ngrams.csv')
+
+    # ngrams = ngrams.merge(basic['rev_id'], left_index=True, right_index= True)
+    bsc = basic.drop('logged_in', axis=1)\
+        .drop('ns', axis=1)\
+        .drop('comment', axis=1)\
+        .drop('words', axis=1)
+
+    ngrams = ngrams.reset_index(drop=True)
+    bsc = bsc.reset_index(drop=True)
+
+    print(bsc)
+
+    bsc = bsc.merge(ngrams, left_index=True, right_index=True)\
+        .drop('year', axis=1)
+
+    bsc.to_csv('../features/ngrams.csv')
     print(ngrams)
-    return ngrams
+    print(bsc)
+    # return ngrams
 
     # with open("../data/ngrams.txt", "wb") as fp:  # Pickling
     #     pickle.dump(features, fp)
@@ -36,9 +71,8 @@ def merge_data():
         pickle.dump(data, fp)
 
 
-
 # data = get_data()
-# ngrams = get_n_grams(2)
-merge_data()
+get_n_grams(2)
+# merge_data()
 # print(ngrams)
 
