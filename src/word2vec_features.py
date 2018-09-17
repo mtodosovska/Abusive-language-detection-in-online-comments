@@ -84,7 +84,7 @@ def get_vectors(comments, num_features):
 
         data = data.append(ft.transpose())
 
-    data.to_csv('../features/embeddings.csv')
+    data.to_csv('../features/embeddings150.csv')
     # with open("../features/embe", "wb") as fp:  # Pickling
     #     pickle.dump(data, fp)
 
@@ -96,10 +96,11 @@ def get_data():
     return data
 
 
-num_features = 100
+num_features = 150
 data = get_data()
 # train_model(data.iloc[:, 2])
-get_vectors(data.iloc[:, 0:2], num_features)
+print(data.iloc[0, 3:5])
+get_vectors(data.iloc[:, 3:5], num_features)
 #
 # data = get_data()
 # embeddings = pd.read_csv('../features/embeddings.csv')

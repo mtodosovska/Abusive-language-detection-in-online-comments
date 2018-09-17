@@ -118,4 +118,42 @@ def separate_features():
         pickle.dump(basic, fp)
 
 
-separate_features()
+def sentences_clean():
+    data = pd.read_pickle('../features/basic_comments_clean.txt')
+    comments = data.drop('logged_in', axis=1) \
+        .drop('ns', axis=1) \
+        .drop('year', axis=1) \
+        .drop('comment', axis=1)
+    del data
+    comments = comments[['rev_id', 'words']]
+    sentences = pd.read_csv('../data/sentences_clean.csv', encoding='latin1').drop('Unnamed: 0', axis=1)
+    sent = comments.merge(sentences, how='left', left_index=True, right_index=True).drop('words', axis=1)
+    sent.columns = ['rev_id', 'sentence']
+    print(sent)
+    # print(sent.iloc[0])
+    sent.to_csv('../features/sentences_clean.csv', index=False)
+
+
+def relabel():
+    labels = pd.read_csv('../features/labels.csv').iloc[:, :]
+    class_0 = labels[labels['label'] == 0].iloc[0:, :]
+    class_2 = labels[labels['label'] == 2].append(labels[labels['label'] == 1]).iloc[0:, :]
+    class_2.iloc[:, 2] = 0
+    class_3 = labels[labels['label'] == 3].append(labels[labels.label == 4]).append(labels[labels.label == 5]).iloc[0:,:]
+    class_3.iloc[:, 2] = 1
+    print(class_0.shape)
+    print(class_2.shape)
+    # size = int((class_3.shape[0])/2)
+    # class_0 = class_0.sample(frac=1).iloc[0:size, :]
+    # class_2 = class_2.sample(frac=1).iloc[0:size, :]
+    labels = class_0.append(class_2).append(class_3)
+
+    labels = labels.sample(frac=1)
+    labels = labels.reset_index().drop('level_0', axis=1).drop('index', axis=1)
+    print(labels)
+    labels.to_csv('../features/labels_2_classes.csv', index=False)
+    print('-------------Labels done!++++++++++++++')
+
+# separate_features()
+# sentences_clean()
+relabel()
