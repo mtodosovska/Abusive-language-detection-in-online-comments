@@ -2,6 +2,7 @@ import pandas as pd
 import pickle
 import math
 import numpy as np
+import re
 
 def get_data():
     data = pd.read_pickle('../data/data_features_clean.txt')
@@ -154,6 +155,30 @@ def relabel():
     labels.to_csv('../features/labels_2_classes.csv', index=False)
     print('-------------Labels done!++++++++++++++')
 
+def get_balanced_labels():
+    labels = pd.read_csv('../features/labels_3_classes.csv').iloc[:, :]
+    labels_3 = labels[labels.label == 3]
+    labels_0 = labels[labels.label == 0]
+    labels_0 = labels_0.sample(frac=1).iloc[0:labels_3.shape[0]]
+    labels_2 = labels[labels.label == 2]
+    labels_2 = labels_2.sample(frac=1).iloc[0:labels_3.shape[0]]
+    # labels_3 = labels_3.sample(frac=1)
+    labels_all = labels_0.append(labels_2).append(labels_3)
+    print(labels_all)
+    return labels_all
+
+
+def clean_completely():
+    basic = pd.read_pickle('../features/basic_comments_clean.txt')
+    print(basic['comment'][0])
+    basic['comment'] = basic['comment'].apply(lambda x: x.lower())
+    basic['comment'] = basic['comment'].apply(lambda x: re.sub(r'\W', ' ', x))
+    basic['comment'] = basic['comment'].apply(lambda x: re.sub(r' {2,}', ' ', x))
+    print(basic['comment'][0])
+    basic.to_pickle('../features/basic_comments_tokenised.txt')
+
+
+clean_completely()
 # separate_features()
 # sentences_clean()
-relabel()
+# relabel()

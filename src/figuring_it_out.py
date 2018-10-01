@@ -1,7 +1,6 @@
 import pandas as pd
 import datetime
 
-
 from sklearn.base import TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.pipeline import FeatureUnion
@@ -34,15 +33,28 @@ class SimpleTransformerGeneral(TransformerMixin):
         return self
 
 
+def get_balanced_labels():
+    labels = pd.read_csv('../features/labels_2_classes.csv').iloc[:, :]
+    labels_1 = labels[labels.label == 1]
+    labels_0 = labels[labels.label == 0]
+    labels_0 = labels_0.sample(frac=1).iloc[0:labels_1.shape[0]]
+
+    labels_all = labels_0.append(labels_1)
+    print(labels_all)
+    return labels_all
+
+
 def get_data(n):
     print('Getting data')
     print(datetime.datetime.now())
+    labels = get_balanced_labels().iloc[0:n]
+
     scores = pd.read_csv('../features/scores.csv', encoding='latin1').drop('Unnamed: 0', axis=1).iloc[0:n]
-    pos_tags = pd.read_csv('../features/pos_ngrams.csv', encoding='latin1').iloc[0:n]
+    pos_tags = pd.read_csv('../features/pos_ngrams.csv', encoding='latin1').drop('Unnamed: 0', axis=1).drop('index', axis=1).iloc[0:n]
     scores = scores.merge(pos_tags, on='rev_id')
     del pos_tags
 
-    ngrams = pd.read_csv('../features/ngrams.csv', encoding='latin1')
+    ngrams = pd.read_csv('../features/ngrams.csv', encoding='latin1').drop('Unnamed: 0', axis=1).iloc[0:n]
     scores = scores.merge(ngrams, on='rev_id')
     del ngrams
 
@@ -55,9 +67,12 @@ def get_data(n):
     embeddings = embeddings.merge(linguistic, on='0')
     del linguistic
 
-    labels2 = pd.read_csv('../features/labels.csv', encoding='latin1')
-    new_labels = labels2.merge(scores, how='right', left_on='rev_id', right_on='rev_id')
+    # labels2 = pd.read_csv('../features/labels.csv', encoding='latin1')
+
+    new_labels = labels.merge(scores, how='left', left_on='rev_id', right_on='rev_id')
     del scores
+    print(new_labels)
+    # del labels
 
     new_labels = new_labels.merge(embeddings, left_on='rev_id', right_on='0').drop('0', axis=1)
     del embeddings
@@ -71,8 +86,8 @@ def evaluate(labels_test, results):
     print(classification_report(labels_test, results, target_names=['class_0', 'class_1', 'class_2', 'class_3', 'class_4', 'class_5']))
     print(confusion_matrix(labels_test, results))
 
-    # auc = roc_auc_score(labels_test, results)
-    # print('Test ROC AUC: %.3f' % auc)
+    auc = roc_auc_score(labels_test, results)
+    print('Test ROC AUC: %.3f' % auc)
     print(datetime.datetime.now())
 
 
