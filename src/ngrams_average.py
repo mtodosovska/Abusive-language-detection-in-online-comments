@@ -34,7 +34,7 @@ def get_n_grams(n):
     # sentences = basic['words']
     # print(sentences)
 
-    tfidf = TfidfVectorizer(max_features=1500, ngram_range=(2, n))
+    tfidf = TfidfVectorizer(max_features=10000, ngram_range=(1, 2))
     features = tfidf.fit_transform(sentences.iloc[:, 0])
     ngrams = pd.DataFrame(features.todense(), columns=tfidf.get_feature_names())
 
@@ -52,7 +52,7 @@ def get_n_grams(n):
     bsc = bsc.merge(ngrams, left_index=True, right_index=True)\
         .drop('year', axis=1)
 
-    bsc.to_csv('../features/ngrams3.csv')
+    bsc.to_csv('../features/ngrams_check.csv')
     print(ngrams)
     print(bsc)
     # return ngrams

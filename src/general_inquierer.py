@@ -44,6 +44,6 @@ for comm in basic['comment']:
 
 hvd.columns = np.append(['rev_id'], (inq.columns[1:].values))
 hvd = hvd.reset_index(drop=True)
-hvd.to_csv('../features/haravrd4.csv', index=None)
+hvd.to_csv('../features/harvard4.csv', index=None)
 print(hvd)
 # inq['Entry'] ima duplikati
