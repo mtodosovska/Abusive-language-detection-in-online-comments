@@ -1,1 +1,2 @@
 # Abusive-language-detection-in-online-comments
+A machine learning model for detection of abusive language in online comments. This model uses the practices of machine learning and natural language processing to recognise abusive and offensive language in online comments. The results it provides are comparable to other models in the field (around 80% of comments are recognised correctly, the ROC AUC measure is 0.89).
