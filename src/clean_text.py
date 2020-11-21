@@ -8,21 +8,17 @@ import pickle
 
 
 def clean_re(comment):
-    # print('New lines')
     com = re.sub(r'NEWLINE_TOKEN', ' ', comment)
     comm = re.sub(r'\d+', '.', com)
     return comm
 
 
 def clean_whitespaces(comment):
-    # print('Whitespaces')
     w = re.split(r'\W+', comment)
     return w
 
 
-# clean stop words and case
 def clean_stopwords(comment):
-    # print('Stopwords')
     stop_words = set(stopwords.words('english'))
     all_words = []
     for w in comment:
@@ -31,13 +27,8 @@ def clean_stopwords(comment):
     return all_words
 
 
-def split(comment):
-    sentences = sent_tokenize(comment)
-    # print(sentences)
-
-
-def clean_comments():
-    comments = pd.read_csv('../data/4054689/attack_annotated_comments.tsv', delimiter='\t')
+def clean_comments(in_path, out_path):
+    comments = pd.read_csv(in_path, delimiter='\t')
     comments = comments.drop(['year', 'sample', 'split'], axis=1)
     j = 0
     print('Cleaning')
@@ -52,29 +43,31 @@ def clean_comments():
         # stemmed = stem(all_words)
         words_list = pd.DataFrame([])
         words_list = words_list.append([rev_id, all_words]).transpose()
-        # words_list
         comments_clean = comments_clean.append(words_list)
 
-    comments_clean.to_csv('../data/comments_clean.csv')
+    comments_clean.to_csv(out_path)
 
 
-def pickle_comments():
-    comments = pd.read_csv('../data/comments_clean.csv', encoding='latin1').drop(['Unnamed: 0'], axis=1)
+def pickle_comments(in_path, out_path):
+    comments = pd.read_csv(in_path, encoding='latin1').drop(['Unnamed: 0'], axis=1)
     comments_cleaned = pd.DataFrame()
     for index, row in comments.iterrows():
-        print(index)
-        # comment = row.split(' ')
         ls = row[1].split()
         lss = []
         for s in ls:
             lss.append(s.replace('\'', '').replace(',', ''))
-        comment = pd.DataFrame([row[0], lss[1:len(lss) - 1]])
+        comment = pd.DataFrame([row[0], lss[1: len(lss) - 1]])
         comments_cleaned = comments_cleaned.append(comment.transpose())
 
-    print(comments_cleaned)
-    with open("../data/comments_clean.txt", "wb") as fp:  # Pickling
+    with open(out_path, "wb") as fp:  # Pickling
         pickle.dump(comments_cleaned, fp)
 
+    print(comments_cleaned)
 
-pickle_comments()
+
+in_path = '../data/4054689/attack_annotated_comments.tsv'
+path = '../data/comments_clean.csv'
+clean_comments(in_path, path)
+out_path = '../data/comments_clean.txt'
+pickle_comments(path, out_path)
 
