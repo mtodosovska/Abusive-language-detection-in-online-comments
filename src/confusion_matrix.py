@@ -4,11 +4,6 @@ import itertools
 
 
 def plot_confusion_matrix(matrices, titles, classes):
-    # font = {'fontname': 'Ariel', 'size': 14}
-    # font_i = {'fontname': 'Ariel', 'size': 18}
-
-    # font = {'fontname': 'Ariel', 'size': 18}
-    # font_i = {'fontname': 'Ariel', 'size': 25}
 
     font = {'fontname': 'Ariel', 'size': 24}
     font_i = {'fontname': 'Ariel', 'size': 30}
@@ -28,24 +23,16 @@ def plot_confusion_matrix(matrices, titles, classes):
             plt.text(j, i, format(matrix[i, j], fmt),
                      horizontalalignment="center",
                      color="white" if matrix[i, j] > thresh else "black", **font_i)
-                     # color="black", **font_i)
 
         plt.tight_layout()
-        # plt.ylabel('True label', **font)
-        # plt.xlabel('Predicted label', **font)
         plt.savefig('../results/confusion matrices/final.jpg')
         plt.show()
 
 
 if __name__ == '__main__':
 
-    # classes = ['Class 0', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5']
-    # classes = ['Class 0', 'Class 1', 'Class 2']
     classes = ['Class 0', 'Class 1']
-    confusion_matrix = np.array([[1815,  375],
- [ 468, 1673]])
+    confusion_matrix = np.array([[1815,  375], [ 468, 1673]])
 
-    plot_confusion_matrix([confusion_matrix],
-                          ['Confusion Matrix'],
-                          classes)
+    plot_confusion_matrix([confusion_matrix], ['Confusion Matrix'], classes)
 
