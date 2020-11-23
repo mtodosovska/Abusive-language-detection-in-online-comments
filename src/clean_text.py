@@ -1,10 +1,9 @@
 import re
 from nltk.corpus import stopwords
-from nltk import sent_tokenize
 import pandas as pd
-import numpy as np
-from nltk.stem.porter import PorterStemmer
 import pickle
+
+from data_manager import DataManager
 
 
 def clean_re(comment):
@@ -27,8 +26,8 @@ def clean_stopwords(comment):
     return all_words
 
 
-def clean_comments(in_path, out_path):
-    comments = pd.read_csv(in_path, delimiter='\t')
+def clean_comments(out_path):
+    comments = DataManager.get_original_comments()
     comments = comments.drop(['year', 'sample', 'split'], axis=1)
     j = 0
     print('Cleaning')
@@ -48,8 +47,8 @@ def clean_comments(in_path, out_path):
     comments_clean.to_csv(out_path)
 
 
-def pickle_comments(in_path, out_path):
-    comments = pd.read_csv(in_path, encoding='latin1').drop(['Unnamed: 0'], axis=1)
+def pickle_comments(out_path):
+    comments = DataManager.get_comments_clean()
     comments_cleaned = pd.DataFrame()
     for index, row in comments.iterrows():
         ls = row[1].split()
@@ -65,9 +64,7 @@ def pickle_comments(in_path, out_path):
     print(comments_cleaned)
 
 
-in_path = '../data/4054689/attack_annotated_comments.tsv'
 path = '../data/comments_clean.csv'
-clean_comments(in_path, path)
-out_path = '../data/comments_clean.txt'
-pickle_comments(path, out_path)
+clean_comments(path)
+pickle_comments(path)
 

@@ -1,20 +1,16 @@
 from gensim.models import Word2Vec
-import logging
 import numpy as np
-from nltk import sent_tokenize
 import pandas as pd
 import pickle
 
 
 def get_sentences(comments):
     print('Getting sentences...')
-    # print(comment)
     sentences = []
     i = 0
     for comment in comments:
         print('Sentences:', i)
         i += 1
-        # sentences.append(sent_tokenize(comment))
         sentences.append(" ".join(str(x) for x in comment))
 
     sent = pd.DataFrame(sentences)
@@ -39,13 +35,12 @@ def train_model(comments):
 
 
 def load_model():
-    # model = Word2Vec.load("word2vec_model_second.txt")
     model = Word2Vec.load('../models/model.bin')
     return model
 
 
 def get_avg_vec(model, comment, num_features):
-    # print('Getting average vectors...')
+    print('Getting average vectors...')
     index2word = set(model.wv.index2word)
     num = 0
 
@@ -59,13 +54,14 @@ def get_avg_vec(model, comment, num_features):
     return featureVec
 
 
-def get_vectors(comments, num_features):
+def get_vectors(path, comments, num_features, train):
     print('Getting features...')
 
-    # model = train_model(comments)
-    model = load_model()
+    if train:
+        model = train_model(comments)
+    else:
+        model = load_model()
 
-    # feature_vector = []
     counter = 0
     data = pd.DataFrame()
 
@@ -73,7 +69,6 @@ def get_vectors(comments, num_features):
         if counter % 100 == 0:
             print("Review %d of %d" % (counter, comments.iloc[:, 0].shape[0]))
         counter += 1
-        # feature_vector.append(comment.iloc[0])
 
         vector = get_avg_vec(model, row.iloc[1], num_features)
 
@@ -81,32 +76,17 @@ def get_vectors(comments, num_features):
         ls[0] = row[0]
         ls[1:] = vector
         ft = pd.DataFrame(ls)
-
         data = data.append(ft.transpose())
 
-    data.to_csv('../features/embeddings150.csv')
-    # with open("../features/embe", "wb") as fp:  # Pickling
-    #     pickle.dump(data, fp)
+    data.to_csv(path)
 
 
-def get_data():
-    # data = pd.read_csv('../data/data.csv', index_col=0, encoding='latin1')
-    with open("../features/basic_comments.txt", "rb") as fp:  # Unpickling
+def get_data(path):
+    with open(path, "rb") as fp:  # Unpickling
         data = pickle.load(fp)
     return data
 
 
 num_features = 150
-data = get_data()
-# train_model(data.iloc[:, 2])
-print(data.iloc[0, 3:5])
-get_vectors(data.iloc[:, 3:5], num_features)
-#
-# data = get_data()
-# embeddings = pd.read_csv('../features/embeddings.csv')
-# data = data.merge(embeddings, how='left', left_on='rev_id', right_on='0')
-# # print(data.iloc[0])
-# embeddings = data.iloc[:, 12:]
-# print(embeddings)
-# embeddings.to_csv('../features/embeddings.csv', index=False)
-#
+data = get_data('../features/basic_comments.txt')
+get_vectors('../features/embeddings150.csv', data.iloc[:, 3:5], num_features, False)

@@ -1,16 +1,20 @@
 import pandas as pd
-import numpy as np
-import random
-import ast
-import pickle
 import datetime
 
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
 
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+
+from data_manager import DataManager
 
 
 def predict(cls, classifier, training_data, labels, test_data, labels_test):
@@ -40,37 +44,27 @@ def get_features(base_path='../features/'):
     # n = 500
 
 
-    labels = pd.read_csv(base_path + 'labels_2_classes.csv').iloc[0:n, 1]
+    labels = DataManager.get_labels_2_classes().iloc[0:n, 1]
     # features = pd.read_csv(base_path + 'labels_to_test.csv').iloc[0:n, 2:3]
-    # embeddings = pd.read_csv(base_path + 'embeddings.csv', encoding='latin1').iloc[0:n, :]
-    n_grams = pd.read_csv(base_path + 'ngrams.csv', encoding='latin1').drop('Unnamed: 0', axis=1).iloc[0:n]
-    # scores = pd.read_csv(base_path + 'scores.csv', encoding='latin1').drop('Unnamed: 0', axis=1).iloc[0:n, 2:]
-    # pos_tags = pd.read_csv(base_path + 'pos_ngrams.csv', encoding='latin1').iloc[0:n]
-    # linguistic = pd.read_csv(base_path + 'linguistic.csv', encoding='latin1').iloc[0:n]
+    embeddings = DataManager.get_embeddings().iloc[0:n, :]
+    n_grams = DataManager.get_ngrams().iloc[0:n]
+    scores = DataManager.get_scores().iloc[0:n, 2:]
+    pos_tags = DataManager.get_pos_ngrams().iloc[0:n]
+    linguistic = DataManager.get_linguistic().iloc[0:n]
 
     print('Merging features...')
 
-    # features = embeddings.drop('0', axis=1)
-    features = n_grams.drop('rev_id', axis=1)
-    # features = scores.merge(linguistic, left_on='rev_id', right_on='0').drop('0', axis=1).drop('rev_id', axis=1)
-    # features = linguistic.drop('0', axis=1)
-    # features = scores
+    features = embeddings.merge(linguistic, on='0')
+    features = n_grams.merge(features, left_on='rev_id', right_on='0').drop('0', axis=1)
+    features = features.merge(scores, on='rev_id')
+    features = features.merge(pos_tags, on='rev_id')
 
-    # features = embeddings.merge(linguistic, on='0')
-    # features = n_grams.merge(features, left_on='rev_id', right_on='0').drop('0', axis=1)
-    # # features = embeddings.merge(n_grams, left_on='0', right_on='rev_id')
-    # features = features.merge(scores, on='rev_id')
-    # features = features.merge(pos_tags, on='rev_id')
-    # # features = features.merge(linguistic, left_on='rev_id', right_on='0')
-
-    # print(features.iloc[0])
 
     return features.values, labels
 
 
 print('Getting features and labels...')
 features, labels = get_features()
-# print(labels)
 print('Reducing features...')
 
 print('Splitting training and test sets...')
@@ -81,9 +75,10 @@ train, test, labels_train, labels_test = train_test_split(
 classifiers = {'Logistic Regression': LogisticRegression(),
                'Random Forest': RandomForestClassifier(n_estimators=1000, n_jobs=-1, verbose=0, class_weight='balanced', bootstrap=True),
                'Naive Bayes': GaussianNB(),
-               'LDA': LDA(),
+               'LDA': LinearDiscriminantAnalysis(),
                'Decision Tree': DecisionTreeClassifier(random_state=0),
-               'Extra Trees': ExtraTreesClassifier(n_estimators=100, random_state=0)
+               'Extra Trees': ExtraTreesClassifier(n_estimators=100, random_state=0),
+               'SVM': SVC()
                }
 
 

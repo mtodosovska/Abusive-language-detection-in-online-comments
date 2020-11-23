@@ -3,15 +3,18 @@ import numpy as np
 from textblob import TextBlob
 import re
 
-# length of comment in tokens
-# • average length of word
-# • number of punctuations (as is after cleaning, and as it was before cleaning)
-#   number of one letter tokens
-# • number of capitalized letters
-# • number of URLS (I mean it shouldn't be too difficult, but then again, would it make that much difference)
-# • number of tokens with non-alpha characters in the# middle (VERY IMPORTANT!!!)
-# • number of insult and hate blacklist words (this will be covered with the offensiveness score feature)
+from data_manager import DataManager
 
+"""
+length of comment in tokens
+• average length of word
+• number of punctuations (as is after cleaning, and as it was before cleaning)
+  number of one letter tokens
+• number of capitalized letters
+• number of URLS (I mean it shouldn't be too difficult, but then again, would it make that much difference)
+• number of tokens with non-alpha characters in the# middle (VERY IMPORTANT!!!)
+• number of insult and hate blacklist words (this will be covered with the offensiveness score feature)
+"""
 
 def clean_re(comment):
     # print('New lines')
@@ -107,15 +110,12 @@ def num_non_alpha(data, linguistic, i):
 
 i = 1
 
-data_clean = pd.read_pickle('../features/basic_comments_clean.txt')
-data = pd.read_pickle('../features/basic_comments.txt')
+data_clean = DataManager.get_comments()
+data = DataManager.get_basic_comments()
 
 data = data.reset_index(drop=True)
 
 linguistic = create_structure(data)
-print(data_clean.shape)
-print(data.shape)
-print(linguistic.shape)
 
 linguistic, i = num_punct(data, linguistic, i)
 linguistic, i = length_tokens(data_clean, linguistic, i)
@@ -126,5 +126,3 @@ linguistic, i = num_urls(data, linguistic, i)
 linguistic, i = num_non_alpha(data, linguistic, i)
 
 linguistic.to_csv('../features/linguistic.csv', index=False)
-
-print(linguistic)

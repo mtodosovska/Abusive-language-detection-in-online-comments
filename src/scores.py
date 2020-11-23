@@ -1,15 +1,15 @@
 import pandas as pd
-import nltk
 import numpy as np
 from textblob import TextBlob
+from data_manager import DataManager
 
 
 def get_data():
-    data = pd.read_csv('../features/data_features_clean_flat.csv', header=None)
+    data = DataManager.get_data_features()
     return data
 
 
-def calculate_scores(basic):
+def calculate_scores(basic, scores_path):
     scores = pd.DataFrame()
     for index, row in basic.iterrows():
 
@@ -38,18 +38,8 @@ def calculate_scores(basic):
 
     scores.columns = ['rev_id', 'readability', 'polarity', 'subjectivity']
     print(scores)
-    scores.to_csv('../features/scores.csv')
+    scores.to_csv(scores_path)
 
 
-def get_comments():
-    data = pd.read_pickle('../features/basic_comments_clean.txt')
-    comments = data.drop('logged_in', axis=1)\
-        .drop('ns', axis=1)\
-        .drop('year', axis=1)\
-        .drop('words', axis=1)
-    comments = comments[['rev_id', 'comment']]
-    return comments
-
-
-comments = get_comments()
-calculate_scores(comments)
+comments = DataManager.get_comments()
+calculate_scores(comments, '../features/scores.csv')

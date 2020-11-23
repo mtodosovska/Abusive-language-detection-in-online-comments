@@ -2,16 +2,12 @@ import pandas as pd
 import datetime
 
 from sklearn.base import TransformerMixin
-from sklearn.pipeline import Pipeline
-from sklearn.pipeline import FeatureUnion
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.linear_model import BayesianRidge
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
@@ -22,6 +18,8 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import recall_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import f1_score
+
+from data_manager import DataManager
 
 
 class SimpleTransformerGeneral(TransformerMixin):
@@ -53,51 +51,30 @@ def get_balanced_labels():
     return labels_all, labels_1.shape[0]
 
 
-def get_data(n):
+def get_data():
     print('Getting data')
     print(datetime.datetime.now())
     labels, m = get_balanced_labels()
-    # m = 2*m
 
-    # scores = pd.read_csv('../features/scores.csv', encoding='latin1').drop('Unnamed: 0', axis=1).iloc[0:n]
-    # gi = pd.read_csv('../features/harvard4.csv', encoding='latin1')
-    # scores = scores.merge(gi, on='rev_id')
-    # del gi
-
-    # pos_tags = pd.read_csv('../features/pos_ngrams.csv', encoding='latin1').drop('Unnamed: 0', axis=1).drop('index', axis=1).iloc[0:n]
-    # # scores = pos_tags
-    # scores = scores.merge(pos_tags, on='rev_id')
-    # del pos_tags
-    #
-    ngrams = pd.read_csv('../features/ngrams.csv', encoding='latin1').drop('Unnamed: 0', axis=1).iloc[0:m]
+    ngrams = DataManager.get_ngrams()
     scores = ngrams
     scores = scores.merge(ngrams, on='rev_id')
     del ngrams
     #
-    offensiveness = pd.read_csv('../features/offensiveness_score.csv', encoding='latin1').iloc[0:m]
+    offensiveness = DataManager.get_offensiveness_score().iloc[0:m]
     scores = scores.merge(offensiveness, on='rev_id')
     del offensiveness
 
-    embeddings = pd.read_csv('../features/embeddings.csv', encoding='latin1').iloc[0:m]
-    # linguistic = pd.read_csv('../features/linguistic.csv', encoding='latin1').iloc[0:n]
-    # embeddings = embeddings.merge(linguistic, on='0')
-    # del linguistic
-
-    # labels = pd.read_csv('../features/labels_2_classes.csv', encoding='latin1')
-
+    embeddings = DataManager.get_embeddings().iloc[0:m]
     new_labels = labels.merge(scores, how='left', left_on='rev_id', right_on='rev_id')
 
-    # print(new_labels)
-    # del labels
-
     new_labels = new_labels.merge(embeddings, left_on='rev_id', right_on='0').drop('0', axis=1)
-    # new_labels = new_labels.merge(scores, left_on='rev_id', right_on='rev_id')
 
     del embeddings
     del labels
     del scores
 
-    features = new_labels.drop('label', axis=1)#.drop('rev_id', axis=1)
+    features = new_labels.drop('label', axis=1)
 
     return features, new_labels
 
@@ -131,21 +108,16 @@ train, test, labels_train, labels_test = train_test_split(
 
 del features
 del new_labels
-# print('Fitting pipeline')
-# clf = Pipeline([
-#     ('features', SimpleTransformerGeneral()),
-#     # ('LogisticRegression', LogisticRegression(class_weight='balanced')),
-#     ('RandomForest', RandomForestClassifier(n_estimators=1000, n_jobs=-1, verbose=0, class_weight='balanced', bootstrap=True))
-# ])
+
 
 models = []
 models.append(('LogisticRegression', LogisticRegression()))
-# models.append(('LinearDiscriminantAnalysis', LinearDiscriminantAnalysis()))
-# models.append(('DecisionTreeClassifier', DecisionTreeClassifier()))
-# models.append(('GaussianNB', GaussianNB()))
-# models.append(('RandomForestClassifier', RandomForestClassifier()))
-# models.append(('ExtraTreesClassifier', ExtraTreesClassifier()))
-# models.append(('SVM', SVC()))
+models.append(('LinearDiscriminantAnalysis', LinearDiscriminantAnalysis()))
+models.append(('DecisionTreeClassifier', DecisionTreeClassifier()))
+models.append(('GaussianNB', GaussianNB()))
+models.append(('RandomForestClassifier', RandomForestClassifier()))
+models.append(('ExtraTreesClassifier', ExtraTreesClassifier()))
+models.append(('SVM', SVC()))
 
 for name, model in models:
     clf = model
@@ -155,7 +127,6 @@ for name, model in models:
     clf = clf.fit(train.iloc[:, 1:], labels_train)
     results = clf.predict(test.iloc[:, 1:])
     probabilities = clf.predict_proba(test.iloc[:, 1:])
-    # print(results)
     evaluate(labels_test, results, probabilities)
 
     fn = 0

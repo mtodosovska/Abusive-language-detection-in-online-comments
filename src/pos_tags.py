@@ -9,13 +9,10 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
-def get_comments():
-    data = pd.read_csv('../features/sentences_clean.csv')
-    return data
+from data_manager import DataManager
 
 
-def get_pos_tag_comments(comments):
+def get_pos_tag_comments(comments, path):
 
     tags = pd.DataFrame()
     for index, row in comments.iterrows():
@@ -32,19 +29,18 @@ def get_pos_tag_comments(comments):
 
     tags.columns = ['rev_id', 'tags']
     tags = tags.reset_index(drop=True)
-    tags.to_pickle('../features/pos_tags.csv')
+    tags.to_pickle(path)
 
     print(tags)
 
 
-def get_n_grams(n):
+def get_n_grams(n, path, path_out):
 
-    sentences = pd.read_pickle('../features/pos_tags.csv')
+    sentences = pd.read_pickle(path)
 
     sentences_stitch = []
     for i, s in sentences.iterrows():
         sentences_stitch.append(" ".join(str(x) for x in sentences.iloc[i, 1]))
-    sentences_stitch
 
     tfidf = TfidfVectorizer(min_df=0.1, max_df=0.5, ngram_range=(2, n))
     features = tfidf.fit_transform(sentences_stitch)
@@ -53,21 +49,22 @@ def get_n_grams(n):
     ngrams = ngrams.reset_index(drop=True)
 
     print(ngrams)
-    ngrams.to_csv('../features/pos_ngrams.csv')
+    ngrams.to_csv(pat_out)
 
 
-def get_ids():
-    ngrams = pd.read_csv('../features/pos_ngrams.csv', encoding='latin1')
-    scores = pd.read_csv('../features/scores.csv', encoding='latin1').drop('Unnamed: 0', axis=1)
+def get_ids(path):
+    ngrams = DataManager.get_pos_ngrams()
+    scores = DataManager.get_scores()
     nngrams = scores.merge(ngrams, how='left', left_index=True, right_index=True)
     nngrams.drop('readability', axis=1) \
             .drop('polarity', axis=1)\
             .drop('subjectivity', axis=1)
 
     nngrams = nngrams.reset_index()
-    nngrams.to_csv('../features/pos_ngrams.csv')
+    nngrams.to_csv(path)
 
-# words = get_comments()
-# get_pos_tag_comments(words)
-# get_n_grams(3)
-get_ids()
+
+words = DataManager.get_sentences_clean()
+get_pos_tag_comments(words, '../features/pos_tags.csv')
+get_n_grams(3, '../features/pos_tags.csv', '../features/pos_ngrams.csv')
+get_ids('../features/pos_ngrams.csv')

@@ -2,11 +2,14 @@ import pandas as pd
 import re
 import numpy as np
 
-inq = pd.read_csv('../data/general inquierer/inquireraugmented.csv', encoding='latin1').iloc[1:]
+from data_manager import DataManager
+
+inq = DataManager.get_general_inquierer()
+basic = DataManager.get_tokenised()
+
 inq = inq.drop('Source', axis=1).drop('Defined', axis=1).drop('Othrtags', axis=1)
 inq['Entry'] = inq['Entry'].apply(lambda x: x.lower())
 inq['Entry'] = inq['Entry'].apply(lambda x: re.sub(r'\#\w', '', x))
-basic = pd.read_pickle('../features/basic_comments_tokenised.txt')
 
 hvd = pd.DataFrame()
 # lst = basic['comment'][0].split()
@@ -45,5 +48,3 @@ for comm in basic['comment']:
 hvd.columns = np.append(['rev_id'], (inq.columns[1:].values))
 hvd = hvd.reset_index(drop=True)
 hvd.to_csv('../features/harvard4.csv', index=None)
-print(hvd)
-# inq['Entry'] ima duplikati
