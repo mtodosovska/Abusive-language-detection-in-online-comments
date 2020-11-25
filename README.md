@@ -39,6 +39,7 @@ The classifier selection experiments used the features from Model 1 which showed
 ## Evaluation
 The best results obtained in our research use the dataset with two balanced classes, word embeddings, n-grams and offensiveness score, and the logistic regression classifier. The F1 score of our best model is 0.8 and the ROC AUC 0.89.
 ![alt text](figures/Figure1.jpg "Confusion matrix")
+\
 As we can see from the confusion matrix, the model predicts the negative class slightly more than the positive class. However, the results are comparable to the state-of-the-art in the supervised learning solution of this problem, and generalise well to unseen comments.  
 
 
