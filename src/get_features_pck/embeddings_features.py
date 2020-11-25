@@ -2,6 +2,7 @@ from gensim.models import Word2Vec
 import numpy as np
 import pandas as pd
 import pickle
+from data_manager import DataManager
 
 
 def get_sentences(comments):
@@ -87,6 +88,7 @@ def get_data(path):
     return data
 
 
-num_features = 150
-data = get_data('../features/basic_comments.txt')
-get_vectors('../features/embeddings150.csv', data.iloc[:, 3:5], num_features, False)
+def get_embeddings():
+    num_features = 150
+    data = DataManager.get_basic_comments()
+    get_vectors('../features/embeddings150.csv', data.iloc[:, 3:5], num_features, False)

@@ -19,7 +19,7 @@ length of comment in tokens
 def clean_re(comment):
     # print('New lines')
     com = re.sub(r'NEWLINE_TOKEN', ' ', comment)
-    comm = re.sub(r'\d+', '.', com)
+    comm = re.sub(r'\d+', '..', com)
     return comm
 
 
@@ -108,21 +108,22 @@ def num_non_alpha(data, linguistic, i):
     i += 1
     return linguistic, i
 
-i = 1
 
-data_clean = DataManager.get_comments()
-data = DataManager.get_basic_comments()
+def get_linguistic_features():
+    i = 1
+    data_clean = DataManager.get_comments()
+    data = DataManager.get_basic_comments()
 
-data = data.reset_index(drop=True)
+    data = data.reset_index(drop=True)
 
-linguistic = create_structure(data)
+    linguistic = create_structure(data)
 
-linguistic, i = num_punct(data, linguistic, i)
-linguistic, i = length_tokens(data_clean, linguistic, i)
-linguistic, i = avg_len_words(data_clean, linguistic, i)
-linguistic, i = one_letter(data_clean, linguistic, i)
-linguistic, i = num_capitalised(data_clean, linguistic, i)
-linguistic, i = num_urls(data, linguistic, i)
-linguistic, i = num_non_alpha(data, linguistic, i)
+    linguistic, i = num_punct(data, linguistic, i)
+    linguistic, i = length_tokens(data_clean, linguistic, i)
+    linguistic, i = avg_len_words(data_clean, linguistic, i)
+    linguistic, i = one_letter(data_clean, linguistic, i)
+    linguistic, i = num_capitalised(data_clean, linguistic, i)
+    linguistic, i = num_urls(data, linguistic, i)
+    linguistic, i = num_non_alpha(data, linguistic, i)
 
-linguistic.to_csv('../features/linguistic.csv', index=False)
+    linguistic.to_csv('../features/linguistic.csv', index=False)

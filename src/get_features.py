@@ -1,0 +1,15 @@
+from get_features_pck.embeddings_features import get_embeddings
+from get_features_pck.ngrams_features import get_ngrams
+from get_features_pck.scores_features import get_scores
+from get_features_pck.pos_tags_features import get_pos_tags
+from get_features_pck.offensiveness_score_features import get_offensiveness_score
+from get_features_pck.linguistic_features import get_linguistic_features
+from get_features_pck.general_inquierer_features import get_gi
+
+get_embeddings()
+get_ngrams()
+get_scores()
+get_pos_tags()
+get_offensiveness_score()
+get_linguistic_features()
+get_gi()

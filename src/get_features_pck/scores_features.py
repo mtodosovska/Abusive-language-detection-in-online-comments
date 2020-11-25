@@ -41,5 +41,6 @@ def calculate_scores(basic, scores_path):
     scores.to_csv(scores_path)
 
 
-comments = DataManager.get_comments()
-calculate_scores(comments, '../features/scores.csv')
+def get_scores():
+    comments = DataManager.get_comments()
+    calculate_scores(comments, '../features/scores.csv')

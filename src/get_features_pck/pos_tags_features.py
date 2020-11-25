@@ -64,7 +64,8 @@ def get_ids(path):
     nngrams.to_csv(path)
 
 
-words = DataManager.get_sentences_clean()
-get_pos_tag_comments(words, '../features/pos_tags.csv')
-get_n_grams(3, '../features/pos_tags.csv', '../features/pos_ngrams.csv')
-get_ids('../features/pos_ngrams.csv')
+def get_pos_tags():
+    words = DataManager.get_sentences_clean()
+    get_pos_tag_comments(words, '../features/pos_tags.csv')
+    get_n_grams(3, '../features/pos_tags.csv', '../features/pos_ngrams.csv')
+    get_ids('../features/pos_ngrams.csv')

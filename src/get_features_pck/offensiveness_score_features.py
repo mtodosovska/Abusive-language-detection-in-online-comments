@@ -52,26 +52,27 @@ def get_dependencies(comments, pronouns, bad_words, intensities, path):
     offensiveness_score.to_csv(path, index=False)
 
 
-pronouns = ['you', 'your', 'yours', 'yourself', 'yourselves']
+def get_offensiveness_score():
+    pronouns = ['you', 'your', 'yours', 'yourself', 'yourselves']
 
-comments = DataManager.get_comments()
-comments['words'] = comments['words'].apply(lambda x: " ".join(y for y in x))
+    comments = DataManager.get_comments()
+    comments['words'] = comments['words'].apply(lambda x: " ".join(y for y in x))
 
-swear_words = DataManager.get_swear_words()
-hate_words = DataManager.get_hate_words()
+    swear_words = DataManager.get_swear_words()
+    hate_words = DataManager.get_hate_words()
 
-hate_words = hate_words[hate_words.offensiveness != 0]
+    hate_words = hate_words[hate_words.offensiveness != 0]
 
-hw = hate_words['vocabulary'].tolist()
-sw = swear_words.iloc[:, 0].tolist()
+    hw = hate_words['vocabulary'].tolist()
+    sw = swear_words.iloc[:, 0].tolist()
 
-intensities = {}
-bad_words = set(hw)
-for index, row in hate_words.iterrows():
-    intensities[row['vocabulary']] = row['offensiveness']
-for i in sw:
-    bad_words.add(i)
-    intensities[i] = 1
+    intensities = {}
+    bad_words = set(hw)
+    for index, row in hate_words.iterrows():
+        intensities[row['vocabulary']] = row['offensiveness']
+    for i in sw:
+        bad_words.add(i)
+        intensities[i] = 1
 
-get_dependencies(comments, pronouns, bad_words, intensities, '../features/offensiveness_score.csv')
+    get_dependencies(comments, pronouns, bad_words, intensities, '../features/offensiveness_score.csv')
 

@@ -37,5 +37,6 @@ def merge_data(path):
         pickle.dump(data, fp)
 
 
-get_n_grams('../features/ngrams_check.csv')
-merge_data("../data/data_features_clean.txt")
+def get_ngrams():
+    get_n_grams('../features/ngrams_check.csv')
+    merge_data("../data/data_features_clean.txt")
